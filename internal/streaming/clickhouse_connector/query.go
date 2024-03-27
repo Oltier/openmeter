@@ -85,6 +85,7 @@ type createMeterView struct {
 	EventType     string
 	ValueProperty string
 	GroupBy       map[string]string
+	FilterBy      []models.MeterFilter
 	// Populate creates the materialized view with data from the events table
 	// This is not safe to use in production as requires to stop ingestion
 	Populate bool
@@ -185,6 +186,20 @@ func (d createMeterView) toSelectSQL() (string, error) {
 		selects = append(selects, fmt.Sprintf("%s(cast(JSON_VALUE(data, '%s'), 'Float64')) AS value", aggStateFn, sqlbuilder.Escape(d.ValueProperty)))
 	}
 
+	// Wheres
+	var wheres []string
+
+	if len(d.FilterBy) > 0 {
+		for _, filter := range d.FilterBy {
+			switch filter.Operator {
+			case models.MeterFilterOperatorEquals:
+				wheres = append(wheres, fmt.Sprintf("JSON_VALUE(data, '%s') = '%s'", sqlbuilder.Escape(filter.Property), filter.Value))
+			default:
+				return "", fmt.Errorf("filter not implemented yet: %s", filter)
+			}
+		}
+	}
+
 	// Group by
 	orderBy := []string{"windowstart", "windowend", "subject"}
 	sortedGroupBy := sortedKeys(d.GroupBy)
@@ -202,6 +217,7 @@ func (d createMeterView) toSelectSQL() (string, error) {
 	query.Where(fmt.Sprintf("%s.namespace = '%s'", eventsTableName, sqlbuilder.Escape(d.Namespace)))
 	query.Where(fmt.Sprintf("empty(%s.validation_error) = 1", eventsTableName))
 	query.Where(fmt.Sprintf("%s.type = '%s'", eventsTableName, sqlbuilder.Escape(d.EventType)))
+	query.Where(wheres...)
 	query.GroupBy(orderBy...)
 
 	return query.String(), nil

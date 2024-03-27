@@ -52,16 +52,17 @@ func (MeterAggregation) IsValid(input string) bool {
 type MeterFilterOperator string
 
 const (
+	MeterFilterOperatorEquals MeterFilterOperator = "EQ"
+	// TODO support other type of filters
 	// MeterFilterOperatorIn        MeterFilterOperator = "IN"
 	// MeterFilterOperatorNotIn     MeterFilterOperator = "NOT IN"
-	MeterFilterOperatorEquals    MeterFilterOperator = "EQ"
-	MeterFilterOperatorNot       MeterFilterOperator = "NEQ"
-	MeterFilterLowerThan         MeterFilterOperator = "LT"
-	MeterFilterLowerThanOrEq     MeterFilterOperator = "LTE"
-	MeterFilterGreaterThan       MeterFilterOperator = "GT"
-	MeterFilterGreaterThanOrEq   MeterFilterOperator = "GTE"
-	MeterFilterOperatorIsNull    MeterFilterOperator = "IS NULL"
-	MeterFilterOperatorIsNotNull MeterFilterOperator = "IS NOT NULL"
+	// MeterFilterOperatorNot       MeterFilterOperator = "NEQ"
+	// MeterFilterLowerThan         MeterFilterOperator = "LT"
+	// MeterFilterLowerThanOrEq     MeterFilterOperator = "LTE"
+	// MeterFilterGreaterThan       MeterFilterOperator = "GT"
+	// MeterFilterGreaterThanOrEq   MeterFilterOperator = "GTE"
+	// MeterFilterOperatorIsNull    MeterFilterOperator = "IS NULL"
+	// MeterFilterOperatorIsNotNull MeterFilterOperator = "IS NOT NULL"
 )
 
 type MeterFilter struct {
@@ -74,13 +75,13 @@ type MeterFilter struct {
 func (MeterFilterOperator) Values() (kinds []string) {
 	for _, s := range []MeterFilterOperator{
 		MeterFilterOperatorEquals,
-		MeterFilterOperatorNot,
-		MeterFilterLowerThan,
-		MeterFilterLowerThanOrEq,
-		MeterFilterGreaterThan,
-		MeterFilterGreaterThanOrEq,
-		MeterFilterOperatorIsNull,
-		MeterFilterOperatorIsNotNull,
+		//MeterFilterOperatorNot,
+		//MeterFilterLowerThan,
+		//MeterFilterLowerThanOrEq,
+		//MeterFilterGreaterThan,
+		//MeterFilterGreaterThanOrEq,
+		//MeterFilterOperatorIsNull,
+		//MeterFilterOperatorIsNotNull,
 	} {
 		kinds = append(kinds, string(s))
 	}
@@ -146,8 +147,7 @@ type Meter struct {
 	ValueProperty string            `json:"valueProperty,omitempty" yaml:"valueProperty,omitempty"`
 	GroupBy       map[string]string `json:"groupBy,omitempty" yaml:"groupBy,omitempty"`
 	WindowSize    WindowSize        `json:"windowSize,omitempty" yaml:"windowSize,omitempty"`
-	// TODO: add filter by
-	// FilterBy      []MeterFilter
+	FilterBy      []MeterFilter
 }
 
 type MeterOptions struct {
